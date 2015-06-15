@@ -100,7 +100,8 @@ int main() {
 	action.sa_flags = 0;
 	sigaction (SIGINT, &action, NULL);
 	
-	while(1);
+	while(1)
+		sleep(1);
 }
 
 
