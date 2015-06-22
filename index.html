@@ -1,0 +1,14 @@
+<html>
+	<body>
+		<div id='test'> asdf </div>
+		<script>
+			xmlhttp=new XMLHttpRequest();
+			xmlhttp.open("GET","/upd8",false);
+			xmlhttp.send();
+			alert(xmlhttp.response);
+
+			var hello = JSON.parse(xmlhttp.response);
+			document.getElementById('test').textContent = hello.labels[0];
+		</script>
+	</body>
+</html>
