@@ -8,44 +8,40 @@ var db = new sqlite3.Database('powerdata.db', sqlite3.OPEN_READONLY, function(er
 var express = require('express');
 var app = express();
 
-var polldb = setInterval(function() { 
-  db.each("SELECT * FROM powerdata", function(err, data) {
-    if(err) console.log(err);
-    console.log('data: ' + JSON.stringify(data));
-  });
-}, 1000);
+app.use(express.static('static'));
+
+function getData(callback, complete){
+  db.each("SELECT * FROM powerdata", callback, complete);
+}
 
 app.get('/', function (req, res) {
   res.sendFile( __dirname + '/index.html');
 });
 
 app.get('/upd8', function(req, res) {
-  var data = {
-        labels: ["January", "February", "March", "April", "May", "June", "July"],
+  var chartData = {
+    labels: [],
     datasets: [
-        {
-            label: "My First dataset",
-            fillColor: "rgba(220,220,220,0.2)",
-            strokeColor: "rgba(220,220,220,1)",
-            pointColor: "rgba(220,220,220,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(220,220,220,1)",
-            data: [65, 59, 80, 81, 56, 55, 40]
-        },
-        {
-            label: "My Second dataset",
-            fillColor: "rgba(151,187,205,0.2)",
+      {
+            label: "Power Data Set",
+            fillColor: "rgba(0,0,0,0)",
             strokeColor: "rgba(151,187,205,1)",
             pointColor: "rgba(151,187,205,1)",
             pointStrokeColor: "#fff",
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(151,187,205,1)",
-            data: [28, 48, 40, 19, 86, 27, 90]
-        }
+            data: []
+      }
     ]
-  };
-  res.json(data);
+  }
+  getData(function(err, rows) {
+    if(err) console.log(err);
+    console.log(JSON.stringify(rows));
+    chartData.labels.push(rows['time']);
+    chartData.datasets[0].data.push(rows['kilowatts']);
+  }, function(){
+    res.json(chartData);
+  });
 })
 
 var server = app.listen(3000, function () {
